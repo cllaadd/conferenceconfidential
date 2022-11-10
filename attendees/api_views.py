@@ -3,7 +3,7 @@ from .models import Attendee
 from events.models import Conference
 import json
 from django.views.decorators.http import require_http_methods
-from .encoders import AttendeeDetailEncoder, AttendeeListEncoder
+from common.encoders import AttendeeDetailEncoder, AttendeeListEncoder
 
 
 @require_http_methods(["GET", "POST"])
