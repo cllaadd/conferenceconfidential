@@ -1,15 +1,14 @@
 from django.http import JsonResponse
-from .models import Attendee
-from events.models import Conference
+from .models import Attendee, ConferenceVO
 import json
 from django.views.decorators.http import require_http_methods
 from common.encoders import AttendeeDetailEncoder, AttendeeListEncoder
 
 
 @require_http_methods(["GET", "POST"])
-def api_list_attendees(request, conference_id):
+def api_list_attendees(request, conference_vo_id=None):
     if request.method == "GET":
-        attendees = Attendee.objects.filter(conference=conference_id)
+        attendees = Attendee.objects.filter(conference=conference_vo_id)
         return JsonResponse(
             attendees,
             encoder=AttendeeListEncoder,
@@ -18,9 +17,10 @@ def api_list_attendees(request, conference_id):
     else:
         content = json.loads(request.body)
         try:
-            conference = Conference.objects.get(id=conference_id)
+            conference_href = f"/api/conferences/{conference_vo_id}/"
+            conference = ConferenceVO.objects.get(import_href=conference_href)
             content["conference"] = conference
-        except Conference.DoesNotExist:
+        except ConferenceVO.DoesNotExist:
             return JsonResponse(
                 {"message": "Invalid conference id"},
                 status=400,
@@ -35,7 +35,7 @@ def api_list_attendees(request, conference_id):
 
 
 @require_http_methods(["DELETE", "GET", "PUT"])
-def api_show_attendee(request, id):
+def api_show_attendee(request, id, conference_vo_id=None):
     if request.method == "GET":
         attendee = Attendee.objects.get(id=id)
         return JsonResponse(
@@ -50,9 +50,12 @@ def api_show_attendee(request, id):
         content = json.loads(request.body)
         try:
             if "conference" in content:
-                conference = Conference.objects.get(id=content["conference"])
+                conference_href = f"/api/conferences/{conference_vo_id}/"
+                conference = ConferenceVO.objects.get(
+                    import_href=conference_href
+                )
                 content["conference"] = conference
-        except Conference.DoesNotExist:
+        except ConferenceVO.DoesNotExist:
             return JsonResponse(
                 {"message": "Invalid conference id"}, status=400
             )

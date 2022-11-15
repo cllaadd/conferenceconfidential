@@ -1,6 +1,5 @@
 from common.json import ModelEncoder
 from events.models import Location, Conference
-from attendees.models import Attendee
 from presentations.models import Presentation
 
 
@@ -46,17 +45,6 @@ class ConferenceDetailEncoder(ModelEncoder):
     encoders = {
         "location": LocationListEncoder(),
     }
-
-
-class AttendeeListEncoder(ModelEncoder):
-    model = Attendee
-    properties = ["name"]
-
-
-class AttendeeDetailEncoder(ModelEncoder):
-    model = Attendee
-    properties = ["email", "name", "company_name", "created", "conference"]
-    encoders = {"conference": ConferenceListEncoder()}
 
 
 class PresentationListEncoder(ModelEncoder):
